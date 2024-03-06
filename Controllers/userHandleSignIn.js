@@ -8,28 +8,34 @@ async function userHandleSignIn(req, res) {
 
   try {
     const user = await User.findOne({ email: email });
-    if (user) {
-      const passwordMatch = await bcrypt.compare(password, user.password);
-      if (passwordMatch) {
-        setuid(user, res);
-        res.redirect("/dashboard");
-      }
-      return res.status(401).send("Invalid password");
-    } else res.send("UserNotFound");
-  } catch (e) {
-    console.log(e.message);
-  }
-}
+    if (!user) {
+      return res.status(401).send("User not found");
+    }
 
-function setuid(user, res) {
-  const token = jwt.sign(
-    {
-      _id: user._id,
-      username: user.username,
-    },
-    process.env.SECRET_KEY
-  );
-  res.cookie("uid", token);
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).send("Invalid password");
+    }
+
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        username: user.username,
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("uid", token, {
+      httpOnly: true,
+      maxAge: 3600000,
+    });
+
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.error("Error in userHandleSignIn:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
 }
 
 module.exports = userHandleSignIn;

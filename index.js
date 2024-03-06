@@ -35,7 +35,7 @@ async function startServer() {
   app.use("/signin", SignInRouter);
 
   // Error handling middleware
-  app.use((err, res) => {
+  app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send("Something went wrong!");
   });

@@ -2,10 +2,10 @@ const express = require("express");
 const staticRouter = express.Router();
 const getuid = require("../Middleware/verifyUser");
 
-staticRouter.get("/signup", (req, res) => {
+staticRouter.get("/signup", async (req, res) => {
   return res.render("signup");
 });
-staticRouter.get("/signin", (req, res) => {
+staticRouter.get("/signin", async (req, res) => {
   return res.render("signin");
 });
 
